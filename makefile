@@ -12,7 +12,8 @@ HEX_FILE = $(FILE_NAME).hex
 LST_FILE = $(FILE_NAME).lst
 MAP_FILE = $(FILE_NAME).map
 
-CPU=atmega328p
+#CPU=atmega328p
+CPU=atmega32
 
 CFLAGS = -Wall -O0 -mmcu=$(CPU) -I. -I./lib_src -DWHO_AM_I=\"$(FILE_NAME)\" -std=c11
 
