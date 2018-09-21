@@ -57,8 +57,13 @@ $(LST_FILE): $(ELF_FILE)
 $(HEX_FILE): $(ELF_FILE)
 	$(CC)-objcopy -O ihex -R .eeprom $(ELF_FILE) $(HEX_FILE)
 
-download: all
+download: download_$(CPU)
+
+download_atmega328p: all
 	avrdude -v -patmega328p -carduino -P$(PORT) -b57600 -D -Uflash:w:$(HEX_FILE):i 
+
+download_atmega32: all
+	avrdude -v -patmega32 -cstk500v2 -P$(PORT) -Uflash:w:$(HEX_FILE):i 
 
 rebuild: clean all
 
