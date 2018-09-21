@@ -27,6 +27,7 @@ SRC_FILES_C += $(wildcard library/*.c)
 INC_FILES = $(wildcard *.h)
 INC_FILES += $(wildcard *.hpp)
 INC_FILES += $(wildcard interfaces/*.h)
+INC_FILES += $(wildcard hardware_abstraction_layer/$(CPU)/*.h)
 INC_FILES += $(wildcard interfaces/*.hpp)
 
 OBJ = $(patsubst %.c, $(OUT_FOLDER)/%.o, $(SRC_FILES_C))

@@ -6,8 +6,8 @@ void uartInit()
 {
     uint8_t baudrate = (uint8_t)(F_CPU / (16lu * BAUD_RATE)) - 1lu;
 
-    UBRRH = 103 >> 8;
-	UBRRL = 103;    
+    UBRRH = baudrate >> 8;
+	UBRRL = baudrate;    
 
     UCSRB = _BV(RXEN) | _BV(TXEN);
     UCSRC = _BV(URSEL) | ( 3 << UCSZ0);
