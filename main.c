@@ -62,6 +62,11 @@ int main()
             uartWriteString("Data to write: \r\n    ");
             utilsPrintHex(buffer, data_size);
             networkControllerWriteByteStream(buffer, data_size);
+        }
+
+        if(eth_header_rcv.eth_type == ETH_TYPE_IPv4)
+        {
+            ipParseHeader(&ip_header_rcv, buffer, eth_header_rcv.payload_size);
         }        
     }
 
