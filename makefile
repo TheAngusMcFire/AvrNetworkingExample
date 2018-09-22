@@ -36,7 +36,8 @@ OBJ += $(patsubst %.cpp, $(OUT_FOLDER)/%.o, $(SRC_FILES_CPP))
 
 DEBS= $(INC_FILES) makefile
 
-PORT=/dev/ttyUSB0
+#PORT=/dev/ttyUSB0
+PORT=/dev/serial/by-id/usb-Silicon_Labs_myAVR_-_mySmartUSB_light_mySmartUSBlight-0001-if00-port0
 
 all: setup $(ELF_FILE) $(LST_FILE) $(HEX_FILE)
 
