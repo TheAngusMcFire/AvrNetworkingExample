@@ -40,6 +40,9 @@ DEBS= $(INC_FILES) makefile
 PORT=/dev/serial/by-id/usb-Silicon_Labs_myAVR_-_mySmartUSB_light_mySmartUSBlight-0001-if00-port0
 
 all: setup $(ELF_FILE) $(LST_FILE) $(HEX_FILE)
+	@echo 
+	$(CC)-size $(ELF_FILE)
+	@echo
 
 $(ELF_FILE): $(OBJ)
 	$(CC)-gcc  $(OBJ) $(CFLAGS) -Wl,-Map=$(MAP_FILE) -o $(ELF_FILE)

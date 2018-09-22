@@ -4,6 +4,8 @@
 
 //the register definitions have been reused form
 //https://github.com/bprayudha/avr-enc28j60/blob/master/lib/enc28j60.h
+//also as base for the enc28h60 driver was taken and rewritten form:
+//https://github.com/bprayudha/avr-enc28j60/blob/master/lib/enc28j60.c
 //thanks to bprayudha for that
 
 // Register Masks
@@ -249,7 +251,7 @@
 static uint8_t enc_bank = 0;
 static uint16_t next_packet_ptr = 0;
 
-uint8_t encReadOp(uint8_t op, uint8_t address)
+static uint8_t encReadOp(uint8_t op, uint8_t address)
 {
     spiCsActive();
     spiWrite(op | (address & ADDRESS_MASK));
@@ -262,7 +264,7 @@ uint8_t encReadOp(uint8_t op, uint8_t address)
     return spiRead();
 }
 
-void encWriteOp(uint8_t op, uint8_t address, uint8_t data)
+static void encWriteOp(uint8_t op, uint8_t address, uint8_t data)
 {
     spiCsActive();
     spiWrite(op | (address & ADDRESS_MASK));
@@ -270,7 +272,7 @@ void encWriteOp(uint8_t op, uint8_t address, uint8_t data)
     spiCsPassive();
 }
 
-void encReadData(uint8_t* buffer, uint16_t size)
+static void encReadData(uint8_t* buffer, uint16_t size)
 {
     spiCsActive();
     spiWrite(RBM);
@@ -287,7 +289,7 @@ void encReadData(uint8_t* buffer, uint16_t size)
     spiCsPassive();
 }
 
-void encWriteData(uint8_t* buffer, uint16_t size)
+static void encWriteData(uint8_t* buffer, uint16_t size)
 {
     spiCsActive();
     spiWrite(WBM);
@@ -302,7 +304,7 @@ void encWriteData(uint8_t* buffer, uint16_t size)
     spiCsPassive();
 }
 
-void encSetBank(uint8_t address)
+static void encSetBank(uint8_t address)
 {
     if((address & BANK_MASK) == enc_bank) 
         return;
@@ -312,7 +314,7 @@ void encSetBank(uint8_t address)
     enc_bank = (address & BANK_MASK);    
 }
 
-uint8_t encRead(uint8_t address)
+static uint8_t encRead(uint8_t address)
 {
     encSetBank(address);
     
@@ -321,13 +323,13 @@ uint8_t encRead(uint8_t address)
     return tmp_var;
 }
 
-void encWrite(uint8_t address, uint8_t data)
+static void encWrite(uint8_t address, uint8_t data)
 {
     encSetBank(address);
     encWriteOp(WCR, address, data);
 }
 
-uint16_t encPhysicaRead(uint8_t address)
+static uint16_t encPhysicaRead(uint8_t address)
 {
     encWrite(MIREGADR, address);
     encWrite(MICMD, MIIRD);
@@ -342,7 +344,7 @@ uint16_t encPhysicaRead(uint8_t address)
     return tmp_var;
 }
 
-void encPhysicalWrite(uint8_t address, uint16_t data)
+static void encPhysicalWrite(uint8_t address, uint16_t data)
 {
     encWrite(MIREGADR, address);
     encWrite(MIWRL, data);
@@ -352,7 +354,7 @@ void encPhysicalWrite(uint8_t address, uint16_t data)
         delayUs(15);
 }
 
-void encClkOut(uint8_t clock)
+static void encClkOut(uint8_t clock)
 {
     encWrite(ECOCON, clock & 0x7);
 }
@@ -363,51 +365,116 @@ void networkControllerInit()
     encWriteOp(SC, 0, SC);
     delayUs(205);
     next_packet_ptr = RXSTART_INIT;
-
     
-    encWrite(ERXSTL,RXSTART_INIT&0xFF);
-    encWrite(ERXSTH,RXSTART_INIT>>8);
-    encWrite(ERXRDPTL,RXSTART_INIT&0xFF);
-    encWrite(ERXRDPTH,RXSTART_INIT>>8);
-    encWrite(ERXNDL,RXSTOP_INIT&0xFF);
-    encWrite(ERXNDH,RXSTOP_INIT>>8);
-    encWrite(ETXSTL,TXSTART_INIT&0xFF);
-    encWrite(ETXSTH,TXSTART_INIT>>8);
-    encWrite(ETXNDL,TXSTOP_INIT&0xFF);
-    encWrite(ETXNDH,TXSTOP_INIT>>8);
-    encWrite(ERXFCON,UCEN|CRCEN|PMEN);
-    encWrite(EPMM0,0x3f);
-    encWrite(EPMM1,0x30);
-    encWrite(EPMCSL,0xf9);
-    encWrite(EPMCSH,0xf7);
-    encWrite(MACON1,(MARXEN|TXPAUS|RXPAUS));
-    encWrite(MACON2,0x00);
-    encWriteOp(BFS,MACON3,(PADCFG0|TXCRCEN|FRMLNEN));
-    encWrite(MAIPGL,0x12);
-    encWrite(MAIPGH,0x0C);
-    encWrite(MABBIPG,0x12);
-    encWrite(MAMXFLL,MAX_FRAMELEN&0xFF);    
-    encWrite(MAMXFLH,MAX_FRAMELEN>>8);
-    encWrite(MAADR5,0x80);
-    encWrite(MAADR4,0xE6);
-    encWrite(MAADR3,0x02);
-    encWrite(MAADR2,0x02);
-    encWrite(MAADR1,0x55);
-    encWrite(MAADR0,0xAA);
-    encPhysicalWrite(PHCON2,HDLDIS);
+    encWrite(ERXSTL, RXSTART_INIT & 0xFF);
+    encWrite(ERXSTH, RXSTART_INIT >> 8);
+    encWrite(ERXRDPTL, RXSTART_INIT & 0xFF);
+    encWrite(ERXRDPTH, RXSTART_INIT >> 8);
+    encWrite(ERXNDL, RXSTOP_INIT & 0xFF);
+    encWrite(ERXNDH, RXSTOP_INIT >> 8);
+    encWrite(ETXSTL, TXSTART_INIT & 0xFF);
+    encWrite(ETXSTH, TXSTART_INIT >> 8);
+    encWrite(ETXNDL, TXSTOP_INIT & 0xFF);
+    encWrite(ETXNDH, TXSTOP_INIT >> 8);
+    encWrite(ERXFCON,UCEN | CRCEN | PMEN);
+    encWrite(EPMM0, 0x3f);
+    encWrite(EPMM1, 0x30);
+    encWrite(EPMCSL, 0xf9);
+    encWrite(EPMCSH, 0xf7);
+    encWrite(MACON1, (MARXEN | TXPAUS | RXPAUS));
+    encWrite(MACON2, 0x00);
+    encWriteOp(BFS, MACON3, (PADCFG0 | TXCRCEN | FRMLNEN));
+    encWrite(MAIPGL, 0x12);
+    encWrite(MAIPGH, 0x0C);
+    encWrite(MABBIPG, 0x12);
+    encWrite(MAMXFLL, MAX_FRAMELEN & 0xFF);    
+    encWrite(MAMXFLH, MAX_FRAMELEN >> 8);
+    encWrite(MAADR5, 0x80);
+    encWrite(MAADR4, 0xE6);
+    encWrite(MAADR3, 0x02);
+    encWrite(MAADR2, 0x02);
+    encWrite(MAADR1, 0x55);
+    encWrite(MAADR0, 0xAA);
+    encPhysicalWrite(PHCON2, HDLDIS);
     encSetBank(ECON1);
-    encWriteOp(BFS,EIE,(INTIE|PKTIE));
-    encWriteOp(BFS,ECON1,RXEN_ENC);
+    encWriteOp(BFS, EIE, (INTIE | PKTIE));
+    encWriteOp(BFS, ECON1, RXEN_ENC);
+
+    encClkOut(2);
+    delayUs(50);
+    encPhysicalWrite(PHLCON, 0x0476);
+    delayUs(50);
 }
 
-uint8_t networkControllerReadByteStream(uint8_t *buffer, uint16_t size)
+uint8_t encDataAvailable()
 {
-    return 0;
+    if(encRead(EPKTCNT) == 0)
+        return(0);
+    else
+        return(1);
 }
 
-uint8_t networkControllerWriteByteStream(uint8_t *buffer, uint16_t size)
+uint16_t networkControllerReadByteStream(uint8_t *buffer, uint16_t buffer_size)
 {
+    uint16_t recieve_status = 0;
+    uint16_t recieve_len = 0;
 
+    if(encRead(EPKTCNT) == 0)
+        return 0;
 
-    return 0;
+    encWrite(ERDPTL, next_packet_ptr & 0xff);
+    encWrite(ERDPTH, next_packet_ptr >> 8);
+    next_packet_ptr = encReadOp(RBM, 0);
+    next_packet_ptr |= encReadOp(RBM, 0) << 8;
+    recieve_len = encReadOp(RBM, 0);
+    recieve_len |= encReadOp(RBM, 0) << 8;
+    recieve_len -= 4;
+
+    recieve_status = encReadOp(RBM, 0);
+    recieve_status |= ((uint16_t)encReadOp(RBM, 0)) << 8;
+
+    if(recieve_len > buffer_size - 1)
+        recieve_len = buffer_size - 1;
+
+    if((recieve_status & 0x80) == 0)
+        recieve_len = 0;
+    else
+        encReadData(buffer, recieve_len);
+
+    encWrite(ERXRDPTL, next_packet_ptr & 0xff);
+    encWrite(ERXRDPTH, next_packet_ptr >> 8);    
+
+    if((next_packet_ptr - 1 < RXSTART_INIT) || (next_packet_ptr - 1 > RXSTOP_INIT))
+    {
+        encWrite(ERXRDPTL, RXSTOP_INIT & 0xFF);
+        encWrite(ERXRDPTH, RXSTOP_INIT >> 8);
+    }
+    else
+    {
+        encWrite(ERXRDPTL, (next_packet_ptr -1) & 0xff);
+        encWrite(ERXRDPTH, (next_packet_ptr -1) >> 8);
+    }
+
+    encWriteOp(BFS, ECON2, PKTDEC);
+
+    return recieve_len;
+}
+
+void networkControllerWriteByteStream(uint8_t *buffer, uint16_t size)
+{
+    while(encReadOp(RCR, ECON1) & TXRTS)
+        if(encRead(EIR) & TXERIF)
+        {
+            encWriteOp(BFS, ECON1, TXRST);
+            encWriteOp(BFC, ECON1, TXRST);
+        }
+
+    encWrite(EWRPTL, TXSTART_INIT & 0xFF);
+    encWrite(EWRPTH, TXSTART_INIT >> 8);
+    encWrite(ETXNDL, (TXSTART_INIT + size) & 0xFF);
+    encWrite(ETXNDH, (TXSTART_INIT + size) >> 8);
+
+    encWriteOp(WBM, 0, 0x00);
+    encWriteData(buffer, size);
+    encWriteOp(BFS, ECON1, TXRTS);
 }
