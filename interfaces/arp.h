@@ -19,9 +19,11 @@ typedef struct
 #define ARP_HEADER_FAIL 1
 
 //see ArpHeader struct for details
-#define ARP_HEADER_SIZE (2 + 2 + 1 + 1 + 2 + 6 + 4 + 6 +4)
+#define ARP_HEADER_SIZE (2 + 2 + 1 + 1 + 2 + 6 + 4 + 6 + 4)
 
-uint8_t arpParseHeader(ArpHeader *arp_header, uint8_t *buffer, uint16_t rcv_size);
-void    arpPrintHeader(ArpHeader *eth_header);
+uint8_t  arpParseHeader(ArpHeader *arp_header, uint8_t *buffer, uint16_t rcv_size);
+void     arpPrintHeader(ArpHeader *eth_header);
+void     arpPrepareResponce(ArpHeader *arp_rcv, ArpHeader *arp_tx, uint8_t * mac_addr);
+uint16_t arpHeaderToBuffer(ArpHeader *arp_rcv, uint8_t * buffer);
 
 #endif

@@ -4,6 +4,7 @@
 #define INTERFACES_ETHERNET_H
 
 #define ETH_MIN_SIZE 46
+#define ETH_HEADER_SIZE (6 + 6 + 2)
 
 #define ETH_HEADER_OK   0
 #define ETH_HEADER_FAIL 1 
@@ -21,12 +22,15 @@ typedef struct
 {
     uint8_t  dst_mac[6];
     uint8_t  src_mac[6];
-    uint16_t eth_types;
+    uint16_t eth_type;
     uint16_t payload_size;
     uint8_t *payload_ptr;
 }EthernetHeader;
 
-uint8_t ethernetParseHeader(EthernetHeader *eth_header, uint8_t *buffer, uint16_t rcv_size);
-void    ethernetPrintHeader(EthernetHeader *eth_header);
+uint8_t  ethernetParseHeader(EthernetHeader *eth_header, uint8_t *buffer, uint16_t rcv_size);
+void     ethernetPrintHeader(EthernetHeader *eth_header);
+void     ethernetBuildHeader(EthernetHeader *eth_header, uint8_t *dst_mac, uint8_t *src_mac, uint16_t eth_type);
+uint16_t ethernetHeaderToBuffer(EthernetHeader *eth_header, uint8_t * buffer);
+
 
 #endif

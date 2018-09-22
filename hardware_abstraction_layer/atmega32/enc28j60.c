@@ -359,7 +359,7 @@ static void encClkOut(uint8_t clock)
     encWrite(ECOCON, clock & 0x7);
 }
 
-void networkControllerInit()
+void networkControllerInit(uint8_t * mac_addr)
 {
     spiInit();
     encWriteOp(SC, 0, SC);
@@ -389,12 +389,12 @@ void networkControllerInit()
     encWrite(MABBIPG, 0x12);
     encWrite(MAMXFLL, MAX_FRAMELEN & 0xFF);    
     encWrite(MAMXFLH, MAX_FRAMELEN >> 8);
-    encWrite(MAADR5, 0x80);
-    encWrite(MAADR4, 0xE6);
-    encWrite(MAADR3, 0x02);
-    encWrite(MAADR2, 0x02);
-    encWrite(MAADR1, 0x55);
-    encWrite(MAADR0, 0xAA);
+    encWrite(MAADR5, mac_addr[0]);
+    encWrite(MAADR4, mac_addr[1]);
+    encWrite(MAADR3, mac_addr[2]);
+    encWrite(MAADR2, mac_addr[3]);
+    encWrite(MAADR1, mac_addr[4]);
+    encWrite(MAADR0, mac_addr[5]);
     encPhysicalWrite(PHCON2, HDLDIS);
     encSetBank(ECON1);
     encWriteOp(BFS, EIE, (INTIE | PKTIE));

@@ -1,6 +1,7 @@
 #include <ethernet.h>
 #include <uart.h>
 #include <utils.h>
+#include <string.h>
 
 uint8_t ethernetParseHeader(EthernetHeader *eth_header, uint8_t *buffer, uint16_t rcv_size)
 {
@@ -17,9 +18,9 @@ uint8_t ethernetParseHeader(EthernetHeader *eth_header, uint8_t *buffer, uint16_
 
     buffer += 6;
 
-    eth_header->eth_types  = 0;
-    eth_header->eth_types |= buffer[0] << 8;
-    eth_header->eth_types |= buffer[1] << 0;
+    eth_header->eth_type  = 0;
+    eth_header->eth_type |= buffer[0] << 8;
+    eth_header->eth_type |= buffer[1] << 0;
 
     buffer += 2;
 
@@ -39,8 +40,8 @@ void ethernetPrintHeader(EthernetHeader *eth_header)
     utilsPrintHex(eth_header->src_mac, 6);
 
     uartWriteString("    Ethernet Type   : 0x");
-    utilsPrintHexByte(eth_header->eth_types >> 8);
-    utilsPrintHexByte(eth_header->eth_types & 0xFF);
+    utilsPrintHexByte(eth_header->eth_type >> 8);
+    utilsPrintHexByte(eth_header->eth_type & 0xFF);
 
     uartWriteString("\r\n    Payload Size    : ");
     utilsPrintInt(eth_header->payload_size);
@@ -52,4 +53,25 @@ void ethernetPrintHeader(EthernetHeader *eth_header)
     }
     
     uartWriteString("\r\n\r\n");
+}
+
+void ethernetBuildHeader(EthernetHeader *eth_header, uint8_t *dst_mac, uint8_t *src_mac, uint16_t eth_type)
+{
+    memcpy(eth_header->dst_mac, dst_mac, 6);
+    memcpy(eth_header->src_mac, src_mac, 6);
+    eth_header->eth_type = eth_type;
+    eth_header->payload_ptr = 0;
+    eth_header->payload_size = 0;
+}
+
+uint16_t ethernetHeaderToBuffer(EthernetHeader *eth_header, uint8_t * buffer)
+{
+    memcpy(buffer, eth_header->dst_mac, 6);
+    buffer += 6;
+    memcpy(buffer, eth_header->src_mac, 6);
+    buffer += 6;
+    buffer[0] = eth_header->eth_type >> 8;
+    buffer[1] = eth_header->eth_type & 0xff;
+
+    return ETH_HEADER_SIZE;
 }

@@ -20,10 +20,16 @@ void utilsPrintHexByte(uint8_t byte)
 
 void utilsPrintHex(uint8_t *buffer, uint16_t size)
 {
+    uint16_t cnt = 1;
+
     for(uint16_t index = 0; index < size; index++)
     {
         utilsPrintHexByte(buffer[index]);
-        uartWriteChar(' ');
+
+        if(cnt++ % 16 == 0)
+            uartWriteString("\r\n    ");
+        else    
+            uartWriteChar(' ');
     }
     uartWriteString("\r\n");
 }
