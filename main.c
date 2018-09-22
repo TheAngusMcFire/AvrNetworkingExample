@@ -5,6 +5,7 @@
 #include <ethernet.h>
 #include <arp.h>
 #include <string.h>
+#include <ip.h>
 
 uint8_t buffer[1000];
 uint8_t mac_addr[] = {0x80,0xe6,0x00,0x00,0x02,0xff};
@@ -12,8 +13,12 @@ uint8_t ip_addr[] = {192,168,1,230};
 
 EthernetHeader eth_header_rcv;
 EthernetHeader eth_header_tx;
+
 ArpHeader      arp_header_rcv;
 ArpHeader      arp_header_tx;
+
+IpHeader       ip_header_rcv;
+IpHeader       ip_header_tx;
 
 int main()
 {
@@ -33,14 +38,14 @@ int main()
 
         if(eth_header_rcv.eth_type == ETH_TYPE_ARP)
         {
-            uartWriteString("#####################################################################################\r\n");
-            ethernetPrintHeader(&eth_header_rcv);   
-
             arpParseHeader(&arp_header_rcv, eth_header_rcv.payload_ptr, eth_header_rcv.payload_size);
-            arpPrintHeader(&arp_header_rcv);
 
             if(memcmp(arp_header_rcv.target_ip, ip_addr, 4))
                 continue;
+
+            uartWriteString("#####################################################################################\r\n");
+            ethernetPrintHeader(&eth_header_rcv);
+            arpPrintHeader(&arp_header_rcv);            
 
             arpPrepareResponce(&arp_header_rcv, &arp_header_tx, mac_addr);
             arpPrintHeader(&arp_header_tx);
