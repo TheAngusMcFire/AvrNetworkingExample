@@ -3,8 +3,6 @@
 #include <uart.h>
 #include <string.h>
 
-
-
 uint8_t arpParseHeader(ArpHeader *arp_header, uint8_t *buffer, uint16_t rcv_size)
 {
     if(rcv_size < ARP_HEADER_SIZE)
@@ -43,12 +41,11 @@ uint8_t arpParseHeader(ArpHeader *arp_header, uint8_t *buffer, uint16_t rcv_size
 
 void arpPrintHeader(ArpHeader *header)
 {
-    uartWriteString("\r\nArp Header: \r\n");
-    uartWriteString("    Hardware Type          : ");
+    uartWriteString("\r\nArp Header: ");
+    uartWriteString("\r\n    Hardware Type          : ");
     utilsPrintInt(header->hardware_type);
-    uartWriteString("\n\r    Protocol Type          : 0x");
-    utilsPrintHexByte(header->protocol_type >> 8);
-    utilsPrintHexByte(header->protocol_type & 0xff);
+    uartWriteString("\n\r    Protocol Type          : ");
+    utilsPrintUint16(header->protocol_type);
 
     uartWriteString("\r\n    Hardware Addr Len      : ");
     utilsPrintHexByte(header->hardware_addr_len);
@@ -58,26 +55,14 @@ void arpPrintHeader(ArpHeader *header)
     utilsPrintInt(header->operation);
 
     uartWriteString("\r\n    Sender Mac             : ");
-    utilsPrintHex(header->sender_mac, 6);
-    uartWriteString("    Sender Ip              : ");
-    utilsPrintInt(header->sender_ip[0]);
-    uartWriteChar('.');
-    utilsPrintInt(header->sender_ip[1]);
-    uartWriteChar('.');
-    utilsPrintInt(header->sender_ip[2]);
-    uartWriteChar('.');
-    utilsPrintInt(header->sender_ip[3]);
+    utilsPrintMacAddress(header->sender_mac);
+    uartWriteString("\r\n    Sender Ip              : ");
+    utilsPrintIpAddress(header->sender_ip);
 
     uartWriteString("\r\n    Target Mac             : ");
-    utilsPrintHex(header->target_mac, 6);
-    uartWriteString("    Target Ip              : ");
-    utilsPrintInt(header->target_ip[0]);
-    uartWriteChar('.');
-    utilsPrintInt(header->target_ip[1]);
-    uartWriteChar('.');
-    utilsPrintInt(header->target_ip[2]);
-    uartWriteChar('.');
-    utilsPrintInt(header->target_ip[3]);
+    utilsPrintMacAddress(header->target_mac);
+    uartWriteString("\r\n    Target Ip              : ");
+    utilsPrintIpAddress(header->target_ip);
     uartWriteString("\r\n\r\n");
 }
 

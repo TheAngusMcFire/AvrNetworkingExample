@@ -28,5 +28,7 @@ typedef struct
 #define IP_HEADER_MIN_SIZE 20
 
 uint8_t ipParseHeader(IpHeader *header, uint8_t *buffer, uint16_t rcv_size);
+void    ipPrintHeader(IpHeader *header);
+
 
 #endif

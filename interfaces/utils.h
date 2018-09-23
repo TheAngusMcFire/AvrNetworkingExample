@@ -9,5 +9,8 @@
 void utilsPrintHexByte(uint8_t byte);
 void utilsPrintHex(uint8_t *buffer, uint16_t size);
 void utilsPrintInt(uint16_t var);
+void utilsPrintMacAddress(uint8_t *mac);
+void utilsPrintIpAddress(uint8_t *ip);
+void utilsPrintUint16(uint16_t value);
 
 #endif

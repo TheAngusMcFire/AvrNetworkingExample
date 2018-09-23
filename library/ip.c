@@ -43,3 +43,41 @@ uint8_t ipParseHeader(IpHeader *header, uint8_t *buffer, uint16_t rcv_size)
 
     return IP_HEADER_OK;
 }
+
+void ipPrintHeader(IpHeader *header)
+{
+    uartWriteString("\r\nIpv4 Header : ");
+    uartWriteString("\r\n    Version           : ");
+    utilsPrintInt(header->version);
+    uartWriteString("\r\n    Header Length     : ");
+    utilsPrintInt(header->header_length);
+    uartWriteString("\r\n    Type of Service   : ");
+    utilsPrintInt(header->type_of_service);
+    uartWriteString("\r\n    Total Length      : ");
+    utilsPrintInt(header->total_length);
+    uartWriteString("\r\n    Identification    : ");
+    utilsPrintInt(header->identification);
+    uartWriteString("\r\n    Flags             : ");
+    utilsPrintInt(header->flags);
+    uartWriteString("\r\n    Fragment Offset   : ");
+    utilsPrintInt(header->fragment_offset);
+    uartWriteString("\r\n    Time to Live      : ");
+    utilsPrintInt(header->ttl);
+    uartWriteString("\r\n    Protocol          : ");
+    utilsPrintInt(header->protocol);
+    uartWriteString("\r\n    Header Checksum   : ");
+    utilsPrintUint16(header->header_checksum);
+    uartWriteString("\r\n    Source Address    : ");
+    utilsPrintIpAddress(header->src_addr);
+    uartWriteString("\r\n    Destination Addr. : ");
+    utilsPrintIpAddress(header->dst_addr);
+    uartWriteString("\r\n    Payload Size      : ");
+    utilsPrintInt(header->payload_size);
+
+    uartWriteString("\r\n    Payload           : "); 
+
+    if(header->payload_size > 0x40)
+        utilsPrintHex(header->payload_ptr, 0x40);
+    else
+        utilsPrintHex(header->payload_ptr, header->payload_size);
+}

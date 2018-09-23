@@ -34,21 +34,20 @@ void ethernetPrintHeader(EthernetHeader *eth_header)
 {
     uartWriteString("\r\nEthernet Header: ");
     uartWriteString("\r\n    Destination MAC : ");
-    utilsPrintHex(eth_header->dst_mac, 6);
+    utilsPrintMacAddress(eth_header->dst_mac);
 
-    uartWriteString("    Source MAC      : ");
-    utilsPrintHex(eth_header->src_mac, 6);
+    uartWriteString("\r\n    Source MAC      : ");
+    utilsPrintMacAddress(eth_header->src_mac);
 
-    uartWriteString("    Ethernet Type   : 0x");
-    utilsPrintHexByte(eth_header->eth_type >> 8);
-    utilsPrintHexByte(eth_header->eth_type & 0xFF);
+    uartWriteString("\r\n    Ethernet Type   : 0x");
+    utilsPrintUint16(eth_header->eth_type);
 
     uartWriteString("\r\n    Payload Size    : ");
     utilsPrintInt(eth_header->payload_size);
 
     if(eth_header->payload_size < 50)
     {
-        uartWriteString("\r\n    Payload         : \r\n    ");
+        uartWriteString("\r\n    Payload         : ");
         utilsPrintHex(eth_header->payload_ptr, eth_header->payload_size);
     }
     
