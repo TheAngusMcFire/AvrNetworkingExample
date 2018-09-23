@@ -12,5 +12,8 @@ void utilsPrintInt(uint16_t var);
 void utilsPrintMacAddress(uint8_t *mac);
 void utilsPrintIpAddress(uint8_t *ip);
 void utilsPrintUint16(uint16_t value);
+void utilsPrintIndentedString(const char* str);
+void utilsPrintSeperator();
+void utilsWriteLine(const char *str);
 
 #endif

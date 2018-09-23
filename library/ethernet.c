@@ -32,26 +32,28 @@ uint8_t ethernetParseHeader(EthernetHeader *eth_header, uint8_t *buffer, uint16_
 
 void ethernetPrintHeader(EthernetHeader *eth_header)
 {
-    uartWriteString("\r\nEthernet Header: ");
-    uartWriteString("\r\n    Destination MAC : ");
+    utilsWriteLine(0);
+    uartWriteString("Eth Header: ");
+    utilsPrintIndentedString("Dest MAC : ");
     utilsPrintMacAddress(eth_header->dst_mac);
 
-    uartWriteString("\r\n    Source MAC      : ");
+    utilsPrintIndentedString("Src MAC  : ");
     utilsPrintMacAddress(eth_header->src_mac);
 
-    uartWriteString("\r\n    Ethernet Type   : 0x");
+    utilsPrintIndentedString("Eth Type : ");
     utilsPrintUint16(eth_header->eth_type);
 
-    uartWriteString("\r\n    Payload Size    : ");
+    utilsPrintIndentedString("Pay Size : ");
     utilsPrintInt(eth_header->payload_size);
 
     if(eth_header->payload_size < 50)
     {
-        uartWriteString("\r\n    Payload         : ");
+        utilsPrintIndentedString("Payload  : ");
         utilsPrintHex(eth_header->payload_ptr, eth_header->payload_size);
     }
     
-    uartWriteString("\r\n\r\n");
+    utilsWriteLine(0);
+    utilsWriteLine(0);
 }
 
 void ethernetBuildHeader(EthernetHeader *eth_header, uint8_t *dst_mac, uint8_t *src_mac, uint16_t eth_type)

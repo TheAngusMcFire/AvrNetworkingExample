@@ -7,7 +7,7 @@
 #include <string.h>
 #include <ip.h>
 
-uint8_t buffer[1000];
+uint8_t buffer[900-67];
 uint8_t mac_addr[] = {0x80,0xe6,0x00,0x00,0x02,0xff};
 uint8_t ip_addr[] = {192,168,1,230};
 
@@ -23,9 +23,9 @@ IpHeader       ip_header_tx;
 int main()
 {
     uartInit();
-    uartWriteString("Hello this is the Network code\r\n");
+    utilsWriteLine("Startup Net code");
     networkControllerInit(mac_addr);
-    uartWriteString("Finished init of Network Controller\r\n");
+    utilsWriteLine("NC init fin...");
 
     while(1)
     {
@@ -43,7 +43,7 @@ int main()
             if(memcmp(arp_header_rcv.target_ip, ip_addr, 4))
                 continue;
 
-            uartWriteString("#####################################################################################\r\n");
+            utilsPrintSeperator();
             ethernetPrintHeader(&eth_header_rcv);
             arpPrintHeader(&arp_header_rcv);            
 
@@ -59,7 +59,7 @@ int main()
             tmp_buffer += arpHeaderToBuffer(&arp_header_tx, tmp_buffer);
 
             uint16_t data_size = (uint16_t)(tmp_buffer - buffer);
-            uartWriteString("Data to write: \r\n    ");
+            uartWriteString("Data to write: ");
             utilsPrintHex(buffer, data_size);
             networkControllerWriteByteStream(buffer, data_size);
         }

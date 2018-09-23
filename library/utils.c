@@ -76,3 +76,26 @@ void utilsPrintUint16(uint16_t value)
     utilsPrintHexByte(value >> 8);
     utilsPrintHexByte(value & 0xff);    
 }
+
+void utilsPrintIndentedString(const char* str)
+{
+    uartWriteString("\r\n");
+    uartWriteString("    ");
+    uartWriteString(str);
+}
+
+void utilsPrintSeperator()
+{            
+    for(uint8_t index = 0; index < 100; index++)
+        uartWriteChar('#');
+
+    uartWriteString("\r\n");
+}
+
+void utilsWriteLine(const char *str)
+{
+    if(str != 0)
+        uartWriteString(str);
+        
+    uartWriteString("\r\n");
+}

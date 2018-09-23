@@ -329,7 +329,7 @@ static void encWrite(uint8_t address, uint8_t data)
     encWriteOp(WCR, address, data);
 }
 
-static uint16_t encPhysicaRead(uint8_t address)
+static uint16_t __attribute__((unused)) encPhysicalRead(uint8_t address)
 {
     encWrite(MIREGADR, address);
     encWrite(MICMD, MIIRD);

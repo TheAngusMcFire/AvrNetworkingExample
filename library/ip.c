@@ -46,38 +46,93 @@ uint8_t ipParseHeader(IpHeader *header, uint8_t *buffer, uint16_t rcv_size)
 
 void ipPrintHeader(IpHeader *header)
 {
-    uartWriteString("\r\nIpv4 Header : ");
-    uartWriteString("\r\n    Version           : ");
+    utilsWriteLine(0);
+    uartWriteString("Ipv4 Header : ");
+    utilsPrintIndentedString("Version      : ");
     utilsPrintInt(header->version);
-    uartWriteString("\r\n    Header Length     : ");
+    utilsPrintIndentedString("Hdr Length   : ");
     utilsPrintInt(header->header_length);
-    uartWriteString("\r\n    Type of Service   : ");
+    utilsPrintIndentedString("Type of Ser. : ");
     utilsPrintInt(header->type_of_service);
-    uartWriteString("\r\n    Total Length      : ");
+    utilsPrintIndentedString("Total Length : ");
     utilsPrintInt(header->total_length);
-    uartWriteString("\r\n    Identification    : ");
+    utilsPrintIndentedString("Identific.   : ");
     utilsPrintInt(header->identification);
-    uartWriteString("\r\n    Flags             : ");
+    utilsPrintIndentedString("Flags        : ");
     utilsPrintInt(header->flags);
-    uartWriteString("\r\n    Fragment Offset   : ");
+    utilsPrintIndentedString("Frag Offset  : ");
     utilsPrintInt(header->fragment_offset);
-    uartWriteString("\r\n    Time to Live      : ");
+    utilsPrintIndentedString("Time to Live : ");
     utilsPrintInt(header->ttl);
-    uartWriteString("\r\n    Protocol          : ");
+    utilsPrintIndentedString("Protocol     : ");
     utilsPrintInt(header->protocol);
-    uartWriteString("\r\n    Header Checksum   : ");
+    utilsPrintIndentedString("Hdr Checksum : ");
     utilsPrintUint16(header->header_checksum);
-    uartWriteString("\r\n    Source Address    : ");
+    utilsPrintIndentedString("Src Address  : ");
     utilsPrintIpAddress(header->src_addr);
-    uartWriteString("\r\n    Destination Addr. : ");
+    utilsPrintIndentedString("Dst Addr.    : ");
     utilsPrintIpAddress(header->dst_addr);
-    uartWriteString("\r\n    Payload Size      : ");
+    utilsPrintIndentedString("Payload Sz   : ");
     utilsPrintInt(header->payload_size);
 
-    uartWriteString("\r\n    Payload           : "); 
+    utilsPrintIndentedString("Payload      : "); 
 
     if(header->payload_size > 0x40)
         utilsPrintHex(header->payload_ptr, 0x40);
     else
         utilsPrintHex(header->payload_ptr, header->payload_size);
+}
+
+static uint16_t ipCalcChecksum(uint8_t *buffer, uint8_t size)
+{
+    uint32_t checksum = 0;
+    uint16_t *check_data = (uint16_t *)buffer; 
+
+    for(uint8_t index = 0; index < size; index++)
+    {
+        checksum += check_data[index];
+    }
+
+    if(size % 2 == 1)
+        checksum = buffer[size -1];
+
+    checksum = (checksum >> 16) + (checksum & 0xFFFF); //here it might overflow again
+    checksum = (checksum >> 16) + (checksum & 0xFFFF);
+
+    return ~((uint16_t) checksum); 
+} 
+
+uint16_t ipHeaderToBuffer(IpHeader *header, uint8_t *buffer)
+{
+    buffer[0] = header->version << 4;
+    buffer[0] += header->header_length / 4;
+
+    buffer[1] = header->type_of_service;
+    
+    buffer[2] = header->total_length >> 8;
+    buffer[3] = header->total_length & 0xff;
+
+    buffer[4] = header->identification >> 8;
+    buffer[5] = header->identification & 0xff;
+
+    buffer[6] = header->flags << 5;
+    buffer[6] += (header->fragment_offset >> 8) & 0b11111;
+    buffer[7] = header->fragment_offset & 0xFF;
+
+    buffer[8] = header->ttl;
+    buffer[9] = header->protocol;
+
+    //header checksum
+    buffer[10] = 0;
+    buffer[11] = 0;
+
+    memcpy(buffer + 12, header->src_addr, 4);
+    memcpy(buffer + 16, header->dst_addr, 4);
+
+    uint16_t checksum = ipCalcChecksum(buffer, 20);
+
+    buffer[10] = checksum >> 8;
+    buffer[11] = checksum & 0xFF;
+
+    return IP_HEADER_MIN_SIZE;
 }

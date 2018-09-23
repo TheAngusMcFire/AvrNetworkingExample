@@ -41,29 +41,31 @@ uint8_t arpParseHeader(ArpHeader *arp_header, uint8_t *buffer, uint16_t rcv_size
 
 void arpPrintHeader(ArpHeader *header)
 {
-    uartWriteString("\r\nArp Header: ");
-    uartWriteString("\r\n    Hardware Type          : ");
+    utilsWriteLine(0);
+    uartWriteString("Arp Header: ");
+    utilsPrintIndentedString("Hardware Type  : ");
     utilsPrintInt(header->hardware_type);
-    uartWriteString("\n\r    Protocol Type          : ");
+    utilsPrintIndentedString("Protocol Type  : ");
     utilsPrintUint16(header->protocol_type);
 
-    uartWriteString("\r\n    Hardware Addr Len      : ");
+    utilsPrintIndentedString("Hardw Addr Len : ");
     utilsPrintHexByte(header->hardware_addr_len);
-    uartWriteString("\r\n    Protocol Addr Len      : ");
+    utilsPrintIndentedString("Proto Addr Len : ");
     utilsPrintHexByte(header->protocol_addr_len);
-    uartWriteString("\n\r    Operation              : ");
+    utilsPrintIndentedString("Operation      : ");
     utilsPrintInt(header->operation);
 
-    uartWriteString("\r\n    Sender Mac             : ");
+    utilsPrintIndentedString("Sender Mac     : ");
     utilsPrintMacAddress(header->sender_mac);
-    uartWriteString("\r\n    Sender Ip              : ");
+    utilsPrintIndentedString("Sender Ip      : ");
     utilsPrintIpAddress(header->sender_ip);
 
-    uartWriteString("\r\n    Target Mac             : ");
+    utilsPrintIndentedString("Target Mac     : ");
     utilsPrintMacAddress(header->target_mac);
-    uartWriteString("\r\n    Target Ip              : ");
+    utilsPrintIndentedString("Target Ip      : ");
     utilsPrintIpAddress(header->target_ip);
-    uartWriteString("\r\n\r\n");
+    utilsWriteLine(0);
+    utilsWriteLine(0);
 }
 
 void arpPrepareResponce(ArpHeader *arp_rcv, ArpHeader *arp_tx, uint8_t * mac_addr)
