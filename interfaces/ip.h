@@ -31,4 +31,6 @@ uint8_t  ipParseHeader(IpHeader *header, uint8_t *buffer, uint16_t rcv_size);
 void     ipPrintHeader(IpHeader *header);
 uint16_t ipHeaderToBuffer(IpHeader *header, uint8_t *buffer);
 
+void ipPrepareHeader(IpHeader *header, uint8_t *dst_ip,uint8_t *src_ip, uint8_t protocol, uint16_t total_lenth);
+
 #endif

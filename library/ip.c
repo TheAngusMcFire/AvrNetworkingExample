@@ -57,7 +57,7 @@ void ipPrintHeader(IpHeader *header)
     utilsPrintIndentedString("Total Length : ");
     utilsPrintInt(header->total_length);
     utilsPrintIndentedString("Identific.   : ");
-    utilsPrintInt(header->identification);
+    utilsPrintUint16(header->identification);
     utilsPrintIndentedString("Flags        : ");
     utilsPrintInt(header->flags);
     utilsPrintIndentedString("Frag Offset  : ");
@@ -83,24 +83,6 @@ void ipPrintHeader(IpHeader *header)
         utilsPrintHex(header->payload_ptr, header->payload_size);
 }
 
-static uint16_t ipCalcChecksum(uint8_t *buffer, uint8_t size)
-{
-    uint32_t checksum = 0;
-    uint16_t *check_data = (uint16_t *)buffer; 
-
-    for(uint8_t index = 0; index < size; index++)
-    {
-        checksum += check_data[index];
-    }
-
-    if(size % 2 == 1)
-        checksum = buffer[size -1];
-
-    checksum = (checksum >> 16) + (checksum & 0xFFFF); //here it might overflow again
-    checksum = (checksum >> 16) + (checksum & 0xFFFF);
-
-    return ~((uint16_t) checksum); 
-} 
 
 uint16_t ipHeaderToBuffer(IpHeader *header, uint8_t *buffer)
 {
@@ -129,10 +111,26 @@ uint16_t ipHeaderToBuffer(IpHeader *header, uint8_t *buffer)
     memcpy(buffer + 12, header->src_addr, 4);
     memcpy(buffer + 16, header->dst_addr, 4);
 
-    uint16_t checksum = ipCalcChecksum(buffer, 20);
+    uint16_t checksum = utilsCalcChecksum(buffer, 20);
 
-    buffer[10] = checksum >> 8;
-    buffer[11] = checksum & 0xFF;
+    buffer[11] = checksum >> 8;
+    buffer[10] = checksum & 0xFF;
 
     return IP_HEADER_MIN_SIZE;
+}
+static uint16_t ip_idx = 1;
+void ipPrepareHeader(IpHeader *header, uint8_t *dst_ip,uint8_t *src_ip, uint8_t protocol, uint16_t total_lenth)
+{
+    header->version = 4;
+    header->header_length = 20;
+    header->type_of_service = 0;
+    header->total_length = total_lenth + header->header_length;
+    header->identification = ip_idx++;
+    header->flags = 2;
+    header->fragment_offset = 0;
+    header->ttl = 64;
+    header->protocol = protocol;
+
+    memcpy(header->src_addr,src_ip,4);
+    memcpy(header->dst_addr,dst_ip,4);
 }

@@ -15,5 +15,6 @@ void utilsPrintUint16(uint16_t value);
 void utilsPrintIndentedString(const char* str);
 void utilsPrintSeperator();
 void utilsWriteLine(const char *str);
+uint16_t utilsCalcChecksum(uint8_t *buffer, uint8_t size);
 
 #endif
