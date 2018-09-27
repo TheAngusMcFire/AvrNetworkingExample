@@ -45,7 +45,7 @@ void utilsPrintHex(uint8_t *buffer, uint16_t size)
 static char text_buf[20];
 void utilsPrintInt(uint16_t var)
 {
-    itoa(var, text_buf, 10);
+    utoa(var, text_buf, 10);
     uartWriteString(text_buf);
 }
 
@@ -152,3 +152,9 @@ uint16_t utilsCalcChecksum(uint8_t *buffer, uint8_t size)
     // Return the checksum in network byte order.
     return htons(~acc);
 } 
+
+void utilsWriteChars(const char *str, uint16_t size)
+{
+    for(uint16_t index = 0; index < size; index++)
+        uartWriteChar(str[index]);
+}

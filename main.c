@@ -22,6 +22,60 @@ ArpHeader      arp_header_tx;
 IpHeader       ip_header_rcv;
 IpHeader       ip_header_tx;
 
+void handleIcmp()
+{
+    //ipPrintHeader(&ip_header_rcv);
+    if (ip_header_rcv.payload_ptr[0] != 8)
+        return;
+
+    uartWriteString("Echo(ping) recieved from: ");
+    utilsPrintIpAddress(ip_header_rcv.src_addr);
+    uartWriteString("\r\n");
+
+    uint8_t icmp_size = icmpPrepareResponce(ip_header_rcv.payload_ptr, ip_header_rcv.payload_size, tx_buffer, sizeof(tx_buffer));
+    ethernetBuildHeader(&eth_header_tx, eth_header_rcv.src_mac, mac_addr, ETH_TYPE_IPv4);
+    ipPrepareHeader(&ip_header_tx, ip_header_rcv.src_addr, ip_addr, 1, icmp_size);
+
+    uint8_t *tmp_buffer = buffer;
+
+    tmp_buffer += ethernetHeaderToBuffer(&eth_header_tx, tmp_buffer);
+    tmp_buffer += ipHeaderToBuffer(&ip_header_tx, tmp_buffer);
+    memcpy(tmp_buffer, tx_buffer, icmp_size);
+    tmp_buffer += icmp_size;
+    uint16_t data_size = (uint16_t)(tmp_buffer - buffer);
+
+    //uartWriteString("Data to write: ");
+    //utilsPrintHex(buffer, data_size);
+
+    networkControllerWriteByteStream(buffer, data_size);
+}
+
+void handleUdp()
+{
+    ipPrintHeader(&ip_header_rcv);
+    uint8_t *udp_data = ip_header_rcv.payload_ptr; 
+
+    uint16_t src_port = udp_data[0] << 8 | udp_data[1];
+    uint16_t dst_port = udp_data[2] << 8 | udp_data[3];
+    uint16_t size =     udp_data[4] << 8 | udp_data[5];
+    uint16_t checksum = udp_data[6] << 8 | udp_data[7];
+
+    uartWriteString("\r\nSrc Port: ");
+    utilsPrintInt(src_port);
+    uartWriteString("\r\nDst Port: ");
+    utilsPrintInt(dst_port);
+    uartWriteString("\r\nSize: ");
+    utilsPrintInt(size);
+    uartWriteString("\r\nChecksum: ");
+    utilsPrintUint16(checksum);
+    uartWriteString("\r\n");
+
+    uint8_t * payload_data = udp_data + 8;
+    uint16_t  payload_size = size - 8;
+    utilsWriteChars(payload_data, payload_size);
+
+}
+
 int main()
 {
     uartInit();
@@ -74,30 +128,12 @@ int main()
             //ICMP
             if(ip_header_rcv.protocol == 0x01)
             {
-                //ipPrintHeader(&ip_header_rcv);
-                if(ip_header_rcv.payload_ptr[0] != 8)
-                    continue;
+                handleIcmp();
+            }
 
-                uartWriteString("Echo(ping) recieved from: ");
-                utilsPrintIpAddress(ip_header_rcv.src_addr);
-                uartWriteString("\r\n");
-
-                uint8_t icmp_size = icmpPrepareResponce(ip_header_rcv.payload_ptr,ip_header_rcv.payload_size,tx_buffer,sizeof(tx_buffer));
-                ethernetBuildHeader(&eth_header_tx, eth_header_rcv.src_mac, mac_addr, ETH_TYPE_IPv4);
-                ipPrepareHeader(&ip_header_tx,ip_header_rcv.src_addr,ip_addr,1, icmp_size);
-
-                uint8_t *tmp_buffer = buffer;
-
-                tmp_buffer += ethernetHeaderToBuffer(&eth_header_tx, tmp_buffer);
-                tmp_buffer += ipHeaderToBuffer(&ip_header_tx, tmp_buffer);
-                memcpy(tmp_buffer,tx_buffer,icmp_size);
-                tmp_buffer+=icmp_size;
-                uint16_t data_size = (uint16_t)(tmp_buffer - buffer);
-                
-                //uartWriteString("Data to write: ");
-                //utilsPrintHex(buffer, data_size);
-                
-                networkControllerWriteByteStream(buffer, data_size);
+            if(ip_header_rcv.protocol == 17)
+            {
+                handleUdp();
             }
         }        
     }
