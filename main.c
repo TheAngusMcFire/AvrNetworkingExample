@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ip.h>
 #include <net_utils.h>
+#include <avr/io.h>
 
 uint8_t buffer[900-67];
 uint8_t tx_buffer[100];
@@ -73,6 +74,20 @@ void handleUdp()
     uint8_t * payload_data = udp_data + 8;
     uint16_t  payload_size = size - 8;
     utilsWriteChars(payload_data, payload_size);
+
+    DDRA |= _BV(4);
+
+    if(memcmp(payload_data,"ON",2) == 0)
+    {
+        uartWriteString("led on\r\n");
+        PORTA |= _BV(4);
+    }
+
+    if(memcmp(payload_data,"OFF",3) == 0)
+    {
+        uartWriteString("led off\r\n");
+        PORTA &= ~_BV(4);   
+    }
 
 }
 

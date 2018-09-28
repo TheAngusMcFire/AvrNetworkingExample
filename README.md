@@ -5,6 +5,9 @@ This example should mainly show how to develop code with maximum reusability.
 The Key is to structure the code into different layers and define fixed interfaces  
 which can be reused with different microcontrollers and different architectures.
 
+I stopped with a basic application independent UDP implementation (ignored ports) because I think i can do a better and 
+more efficient implementation.  
+
 ## Note:
 The Atmega32 is for the AVR Net io board from pollin.de
 
