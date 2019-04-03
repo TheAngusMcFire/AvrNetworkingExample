@@ -4,6 +4,9 @@
 
 uint8_t icmpPrepareResponce(uint8_t *rcv_buffer, uint16_t rcv_size, uint8_t *tx_buffer, uint8_t tx_buff_size)
 {
+    if(tx_buff_size < 4)
+        return 0u;
+
     memcpy(tx_buffer, rcv_buffer, rcv_size);
 
     tx_buffer[0] = 0;

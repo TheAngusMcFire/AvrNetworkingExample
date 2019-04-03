@@ -23,7 +23,7 @@ uint8_t ipParseHeader(IpHeader *header, uint8_t *buffer, uint16_t rcv_size)
 
     header->flags = buffer[6] >> 5;
 
-    header->fragment_offset  = (buffer[6] & 0b11111) << 8;
+    header->fragment_offset  = (buffer[6] & 0x1F) << 8;
     header->fragment_offset += (buffer[7]) << 0;
 
     header->ttl = buffer[8];
@@ -98,7 +98,7 @@ uint16_t ipHeaderToBuffer(IpHeader *header, uint8_t *buffer)
     buffer[5] = header->identification & 0xff;
 
     buffer[6] = header->flags << 5;
-    buffer[6] += (header->fragment_offset >> 8) & 0b11111;
+    buffer[6] += (header->fragment_offset >> 8) & 0x1F;
     buffer[7] = header->fragment_offset & 0xFF;
 
     buffer[8] = header->ttl;

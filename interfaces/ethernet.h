@@ -9,14 +9,12 @@
 #define ETH_HEADER_OK   0
 #define ETH_HEADER_FAIL 1 
  
-enum ETH_TYPES
-{
-    ETH_TYPE_IPv4       = 0x0800,
-    ETH_TYPE_IPv6       = 0x86DD,    
-    ETH_TYPE_ARP        = 0x0806,
-    ETH_TYPE_UNICAST    = 0x8847,
-    ETH_TYPE_MULTICAST  = 0x8848,
-};
+#define ETH_TYPE_IPv4      (0x0800)
+#define ETH_TYPE_IPv6      (0x86DD)    
+#define ETH_TYPE_ARP       (0x0806)
+#define ETH_TYPE_UNICAST   (0x8847)
+#define ETH_TYPE_MULTICAST (0x8848)
+
 
 typedef struct 
 {

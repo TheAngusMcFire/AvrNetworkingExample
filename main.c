@@ -73,7 +73,7 @@ void handleUdp()
 
     uint8_t * payload_data = udp_data + 8;
     uint16_t  payload_size = size - 8;
-    utilsWriteChars(payload_data, payload_size);
+    utilsWriteChars((const char*)payload_data, payload_size);
 
     DDRA |= _BV(4);
 

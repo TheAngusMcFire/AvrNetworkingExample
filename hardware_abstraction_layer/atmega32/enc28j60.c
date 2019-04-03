@@ -444,7 +444,7 @@ uint16_t networkControllerReadByteStream(uint8_t *buffer, uint16_t buffer_size)
     encWrite(ERXRDPTL, next_packet_ptr & 0xff);
     encWrite(ERXRDPTH, next_packet_ptr >> 8);    
 
-    if((next_packet_ptr - 1 < RXSTART_INIT) || (next_packet_ptr - 1 > RXSTOP_INIT))
+    if((next_packet_ptr - 1 > RXSTOP_INIT))
     {
         encWrite(ERXRDPTL, RXSTOP_INIT & 0xFF);
         encWrite(ERXRDPTH, RXSTOP_INIT >> 8);

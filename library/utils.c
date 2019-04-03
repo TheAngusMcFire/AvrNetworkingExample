@@ -2,6 +2,7 @@
 #include <uart.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 void utilsPrintHexByte(uint8_t byte)
 {
